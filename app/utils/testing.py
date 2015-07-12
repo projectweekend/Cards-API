@@ -7,7 +7,7 @@ from app.config import DATABASE_URL
 
 
 HEADERS = {'Content-Type': 'application/json'}
-USER_COLLECTION_ROUTE = '/v1/user'
+USER_COLLECTION_ROUTE = '/user'
 
 
 class APITestCase(TestBase):
@@ -98,10 +98,9 @@ class AuthenticatedAPITestCase(APITestCase):
         self.simulate_post(USER_COLLECTION_ROUTE, {'email': 'whatever@test.com'})
         api_key_query = """
         SELECT          api_key
-        FROM            app_users
-        LIMIT           1;
+        FROM            app_users;
         """
-        cursor = self.db.cursor()
+        cursor = db.cursor()
         cursor.execute(api_key_query)
         result = cursor.fetchone()
         self.api_key = result[0]
