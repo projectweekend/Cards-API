@@ -35,16 +35,20 @@ class APITestCase(TestBase):
             db.commit()
         cursor.close()
 
-    def _simulate_request(self, method, path, data, token=None):
+    def _simulate_request(self, method, path, data, token=None, api_key=None):
+        headers = HEADERS.copy()
         if token:
-            HEADERS['Authorization'] = token
+            headers['Authorization'] = token
+
+        if api_key:
+            headers['X-API-Key'] = api_key
 
         self.api = api
 
         result = self.simulate_request(
             path=path,
             method=method,
-            headers=HEADERS,
+            headers=headers,
             body=json.dumps(data))
         try:
             return json.loads(result[0])
