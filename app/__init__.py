@@ -10,9 +10,9 @@ db = database_connection()
 
 middleware = [
     JSONBodyParser(),
+    DatabaseCursor(),
     RequestValidation(),
     JSONResponse(),
-    DatabaseCursor()
 ]
 
 api = falcon.API(middleware=middleware)

@@ -55,40 +55,45 @@ class APITestCase(TestBase):
         except IndexError:
             return None
 
-    def simulate_get(self, path, token=None):
+    def simulate_get(self, path, token=None, api_key=None):
         return self._simulate_request(
             method='GET',
             path=path,
             data=None,
-            token=token)
+            token=token,
+            api_key=api_key)
 
-    def simulate_post(self, path, data, token=None):
+    def simulate_post(self, path, data, token=None, api_key=None):
         return self._simulate_request(
             method='POST',
             path=path,
             data=data,
-            token=token)
+            token=token,
+            api_key=api_key)
 
-    def simulate_put(self, path, data, token=None):
+    def simulate_put(self, path, data, token=None, api_key=None):
         return self._simulate_request(
             method='PUT',
             path=path,
             data=data,
-            token=token)
+            token=token,
+            api_key=api_key)
 
-    def simulate_patch(self, path, data, token=None):
+    def simulate_patch(self, path, data, token=None, api_key=None):
         return self._simulate_request(
             method='PATCH',
             path=path,
             data=data,
-            token=token)
+            token=token,
+            api_key=api_key)
 
-    def simulate_delete(self, path, token=None):
+    def simulate_delete(self, path, token=None, api_key=None):
         return self._simulate_request(
             method='DELETE',
             path=path,
             data=None,
-            token=token)
+            token=token,
+            api_key=api_key)
 
 
 class AuthenticatedAPITestCase(APITestCase):
