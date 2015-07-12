@@ -11,7 +11,7 @@ class JSONBodyParser(object):
         data = req.stream.read()
         if data:
             try:
-                req.context['data'] = json.loads(req.stream.read())
+                req.context['data'] = json.loads(data)
             except ValueError:
                 message = "Request body is not valid JSON"
                 raise falcon.HTTPBadRequest('Bad request', message)

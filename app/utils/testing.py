@@ -45,7 +45,10 @@ class APITestCase(TestBase):
             method=method,
             headers=HEADERS,
             body=json.dumps(data))
-        return json.loads(result[0])
+        try:
+            return json.loads(result[0])
+        except IndexError:
+            return None
 
     def simulate_get(self, path, token=None):
         return self._simulate_request(
