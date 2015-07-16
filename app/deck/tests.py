@@ -25,13 +25,9 @@ class DeckCollectionTestCase(AuthenticatedAPITestCase):
             api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_CREATED)
         self.assertIn('id', body.keys())
-        self.assertEqual(len(body['cards']), 52)
+        self.assertEqual(body['remaining'], 52)
+        self.assertEqual(body['removed'], 0)
         self.assertEqual(body['groups'], {})
-        card = body['cards'][0]
-        self.assertIn('rank', card.keys())
-        self.assertIn('suit', card.keys())
-        self.assertIn('front', card.keys())
-        self.assertIn('back', card.keys())
 
     def test_create_without_api_key(self):
         self.simulate_post(DECK_COLLECTION_ROUTE, VALID_DATA)

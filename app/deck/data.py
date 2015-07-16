@@ -30,20 +30,18 @@ def build_card(card):
     }
 
 
-class DeckManagerMixin(object):
-
-    def new_deck(self, count):
-        cards = [build_card(c) for c in CARDS]
-        shuffle(cards)
-        return {
-            'cards': cards,
-            'groups': {}
-        }
-
-
 class DataManagerMixin(object):
 
-    def add_deck(self, api_key, deck):
-        self.cursor.callproc('sp_app_deck_insert', [api_key, json.dumps(deck), ])
+    def add_deck(self, api_key, num_of_decks):
+        cards = [build_card(c) for c in CARDS] * num_of_decks
+        shuffle(cards)
+        deck = json.dumps({
+            'cards': {
+                'available': cards,
+                'removed': []
+            },
+            'groups': {}
+        })
+        self.cursor.callproc('sp_app_deck_insert', [api_key, deck, ])
         result = self.cursor.fetchone()
         return result[0]
