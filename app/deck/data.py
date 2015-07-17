@@ -17,23 +17,32 @@ SUITS = {
 }
 
 
-def build_card(card):
-    rank, s = card.split('_')
-    suit = SUITS[s]
-    front_image = '/path/to/front/{0}-{1}.png'.format(rank, suit)
-    back_image = '/path/to/back.png'
-    return {
-        'rank': rank,
-        'suit': SUITS[s],
-        'front': front_image,
-        'back': back_image
-    }
-
-
 class DataManagerMixin(object):
 
+    @staticmethod
+    def _build_card(card):
+        rank, s = card.split('_')
+        suit = SUITS[s]
+        front_image = '/path/to/front/{0}-{1}.png'.format(rank, suit)
+        back_image = '/path/to/back.png'
+        return {
+            'rank': rank,
+            'suit': SUITS[s],
+            'front': front_image,
+            'back': back_image
+        }
+
+    @staticmethod
+    def _serialize_deck_result(database_result):
+        return {
+            'id': database_result['id'],
+            'remaining': len(database_result['cards']['available']),
+            'removed': len(database_result['cards']['removed']),
+            'groups': {}
+        }
+
     def add_deck(self, api_key, num_of_decks):
-        cards = [build_card(c) for c in CARDS] * num_of_decks
+        cards = [self._build_card(c) for c in CARDS] * num_of_decks
         shuffle(cards)
         deck = json.dumps({
             'cards': {
@@ -44,4 +53,9 @@ class DataManagerMixin(object):
         })
         self.cursor.callproc('sp_app_deck_insert', [api_key, deck, ])
         result = self.cursor.fetchone()
-        return result[0]
+        return self._serialize_deck_result(result[0])
+
+    def list_decks(self, api_key):
+        self.cursor.callproc('sp_app_deck_list', [api_key, ])
+        result = self.cursor.fetchone()
+        return [self._serialize_deck_result(d) for d in result[0]]

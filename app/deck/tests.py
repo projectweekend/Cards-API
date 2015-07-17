@@ -49,3 +49,15 @@ class DeckCollectionTestCase(AuthenticatedAPITestCase):
         self.assertEqual(self.srmock.status, falcon.HTTP_BAD_REQUEST)
         error_keys = body['description'].keys()
         self.assertIn('count', error_keys)
+
+    def test_list_decks(self):
+        self.simulate_post(DECK_COLLECTION_ROUTE, VALID_DATA, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_CREATED)
+
+        body = self.simulate_get(DECK_COLLECTION_ROUTE, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_OK)
+        self.assertEqual(len(body), 1)
+        self.assertIn('id', body[0].keys())
+        self.assertEqual(body[0]['remaining'], 52)
+        self.assertEqual(body[0]['removed'], 0)
+        self.assertEqual(body[0]['groups'], {})

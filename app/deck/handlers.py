@@ -10,11 +10,10 @@ class DeckCollection(DeckValidationMixin, DataManagerMixin):
     def on_post(self, req, res):
         api_key = req.context['api_key']
         count = req.context['data']['count']
-        new_deck = self.add_deck(api_key, count)
-        req.context['result'] = {
-            'id': new_deck['id'],
-            'remaining': len(new_deck['cards']['available']),
-            'removed': len(new_deck['cards']['removed']),
-            'groups': {}
-        }
+        req.context['result'] = self.add_deck(api_key, count)
         res.status = falcon.HTTP_CREATED
+
+    def on_get(self, req, res):
+        api_key = req.context['api_key']
+        req.context['result'] = self.list_decks(api_key)
+        res.status = falcon.HTTP_OK
