@@ -24,5 +24,112 @@ Running Tests
 
 Tests, with code coverage reporting can be ran with the following command:
 ```
-docker-compose run web nosetests -v --with-coverage --cover-erase --cover-package=app --cover-xml --cover-html
+./local_test.sh
+```
+
+
+
+Routes
+====================
+
+All routes require that an API Key be included in the `X-API-Key` header. The API Key value is sent via email after registering a new account (**POST:** `/user`).
+
+
+
+### Create a new deck
+
+**POST:**
+```
+/deck
+```
+
+**Body:**
+```json
+{
+    "count": 1
+}
+```
+
+**Notes:**
+
+* `count` - The number of standard 52 card decks to shuffle into the requested deck.
+
+**Response:**
+```json
+{
+    "id": 1,
+    "remaining": 52,
+    "removed": 52,
+    "groups": {}
+}
+```
+
+
+
+### List decks
+
+**GET:**
+```
+/deck
+```
+
+**Response:**
+```json
+[
+    {
+        "id": 1,
+        "remaining": 52,
+        "removed": 52,
+        "groups": {}
+    }
+]
+```
+
+
+
+### Get deck
+
+**GET:**
+```
+/deck/:id
+```
+
+**Response:**
+```json
+{
+    "id": 1,
+    "remaining": 52,
+    "removed": 52,
+    "groups": {}
+}
+```
+
+
+
+### Draw cards from deck
+
+**POST:**
+```
+/deck/:id/draw
+```
+
+**Body:**
+```json
+{
+    "count": 1
+}
+```
+
+**Notes:**
+
+* `count` - The number of cards to draw from the deck.
+
+**Response:**
+```json
+{
+    "id": 1,
+    "remaining": 52,
+    "removed": 52,
+    "groups": {}
+}
 ```
