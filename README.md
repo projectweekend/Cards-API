@@ -105,7 +105,7 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
 
 ### Draw cards from deck
 
-**POST:**
+**PUT:**
 ```
 /deck/:id/draw
 ```

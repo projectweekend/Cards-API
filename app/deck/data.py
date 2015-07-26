@@ -50,11 +50,16 @@ class DataManagerMixin(object):
             },
             'groups': {}
         })
-        self.cursor.callproc('sp_app_deck_insert', [api_key, deck, ])
+        self.cursor.callproc('sp_app_decks_insert', [api_key, deck, ])
         result = self.cursor.fetchone()
         return self._serialize_deck_result(result[0])
 
     def list_decks(self, api_key):
-        self.cursor.callproc('sp_app_deck_list', [api_key, ])
+        self.cursor.callproc('sp_app_decks_list', [api_key, ])
         result = self.cursor.fetchone()
         return [self._serialize_deck_result(d) for d in result[0]]
+
+    def get_deck(self, api_key, deck_id):
+        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
+        result = self.cursor.fetchone()
+        return self._serialize_deck_result(result[0]) if result else result

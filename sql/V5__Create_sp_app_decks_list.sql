@@ -1,4 +1,4 @@
-CREATE FUNCTION sp_app_deck_list
+CREATE FUNCTION sp_app_decks_list
 (
     apiKey TEXT
 )

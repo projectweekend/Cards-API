@@ -22,7 +22,7 @@ BEGIN
                             app_users.api_key = apiKey
         WHERE           app_decks.id = deckId
     )
-    SELECT      row_to_json(d.*)
+    SELECT      ROW_TO_JSON(d.*)
     FROM        d;
 
 END;

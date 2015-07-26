@@ -1,4 +1,4 @@
-CREATE FUNCTION sp_app_deck_insert
+CREATE FUNCTION sp_app_decks_insert
 (
     apiKey TEXT,
     deckDoc JSONB

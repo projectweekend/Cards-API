@@ -17,3 +17,12 @@ class DeckCollection(DeckValidationMixin, DataManagerMixin):
         api_key = req.context['api_key']
         req.context['result'] = self.list_decks(api_key)
         res.status = falcon.HTTP_OK
+
+
+@falcon.before(api_key_required)
+class DeckItem(DeckValidationMixin, DataManagerMixin):
+
+    def on_get(self, req, res, deck_id):
+        api_key = req.context['api_key']
+        req.context['result'] = self.get_deck(api_key, deck_id)
+        res.status = falcon.HTTP_OK if req.context['result'] else falcon.HTTP_NOT_FOUND
