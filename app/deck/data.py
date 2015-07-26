@@ -37,8 +37,7 @@ class DataManagerMixin(object):
         return {
             'id': database_result['id'],
             'remaining': len(database_result['cards']['available']),
-            'removed': len(database_result['cards']['removed']),
-            'groups': {}
+            'removed': len(database_result['cards']['removed'])
         }
 
     def add_deck(self, api_key, num_of_decks):

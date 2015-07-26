@@ -27,7 +27,6 @@ class DeckCollectionTestCase(AuthenticatedAPITestCase):
         self.assertIn('id', body.keys())
         self.assertEqual(body['remaining'], 52)
         self.assertEqual(body['removed'], 0)
-        self.assertEqual(body['groups'], {})
 
     def test_create_without_api_key(self):
         self.simulate_post(DECK_COLLECTION_ROUTE, VALID_DATA)
@@ -60,4 +59,3 @@ class DeckCollectionTestCase(AuthenticatedAPITestCase):
         self.assertIn('id', body[0].keys())
         self.assertEqual(body[0]['remaining'], 52)
         self.assertEqual(body[0]['removed'], 0)
-        self.assertEqual(body[0]['groups'], {})
