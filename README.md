@@ -59,8 +59,7 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
 {
     "id": 1,
     "remaining": 52,
-    "removed": 52,
-    "groups": {}
+    "removed": 52
 }
 ```
 
@@ -79,8 +78,7 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
     {
         "id": 1,
         "remaining": 52,
-        "removed": 52,
-        "groups": {}
+        "removed": 52
     }
 ]
 ```
@@ -99,8 +97,7 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
 {
     "id": 1,
     "remaining": 52,
-    "removed": 52,
-    "groups": {}
+    "removed": 52
 }
 ```
 
@@ -127,9 +124,18 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
 **Response:**
 ```json
 {
-    "id": 1,
-    "remaining": 52,
-    "removed": 52,
-    "groups": {}
+    "deck": {
+        "id": 1,
+        "remaining": 52,
+        "removed": 52
+    },
+    "cards": [
+        {
+            "rank": "2",
+            "suit": "SPADES",
+            "front": "http://example.com/path/to/front/2-SPADES.png",
+            "back": "http://example.com/path/to/back.png"
+        }
+    ]
 }
 ```
