@@ -40,6 +40,10 @@ class DataManagerMixin(object):
             'removed': len(database_result['cards']['removed'])
         }
 
+    def _select_deck_by_id(self, api_key, deck_id):
+        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
+        return self.cursor.fetchone()
+
     def add_deck(self, api_key, num_of_decks):
         cards = [self._build_card(c) for c in CARDS] * num_of_decks
         shuffle(cards)
@@ -60,13 +64,11 @@ class DataManagerMixin(object):
         return [self._serialize_deck_result(d) for d in result[0]]
 
     def get_deck(self, api_key, deck_id):
-        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
-        result = self.cursor.fetchone()
+        result = self._select_deck_by_id(api_key, deck_id)
         return self._serialize_deck_result(result[0]) if result else result
 
     def shuffle_deck(self, api_key, deck_id, target):
-        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
-        result = self.cursor.fetchone()
+        result = self._select_deck_by_id(api_key, deck_id)
         if not result:
             return None
         deck = result[0]
@@ -79,8 +81,7 @@ class DataManagerMixin(object):
         return self._serialize_deck_result(result[0]) if result else result
 
     def draw_cards_from_deck(self, api_key, deck_id, number_cards):
-        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
-        result = self.cursor.fetchone()
+        result = self._select_deck_by_id(api_key, deck_id)
         if not result:
             return None
         deck = result[0]
