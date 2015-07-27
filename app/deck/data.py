@@ -77,3 +77,17 @@ class DataManagerMixin(object):
         self.cursor.callproc('sp_app_decks_update', [api_key, deck_id, json.dumps(deck), ])
         result = self.cursor.fetchone()
         return self._serialize_deck_result(result[0]) if result else result
+
+    def draw_cards_from_deck(self, api_key, deck_id, number_cards):
+        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
+        result = self.cursor.fetchone()
+        if not result:
+            return None
+        deck = result[0]
+        cards_drawn = []
+        for n in range(number_cards):
+            cards_drawn.append(deck['cards']['available'].pop(0))
+        return {
+            'deck': self._serialize_deck_result(deck),
+            'cards': cards_drawn
+        }

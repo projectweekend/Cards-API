@@ -1,6 +1,9 @@
 import falcon
 from app.utils.hooks import api_key_required
-from app.deck.validation import DeckValidationMixin, DeckShuffleValidationMixin
+from app.deck.validation import (
+    DeckValidationMixin,
+    DeckShuffleValidationMixin,
+    DeckDrawValidationMixin)
 from app.deck.data import DataManagerMixin
 
 
@@ -35,4 +38,14 @@ class DeckItemShuffle(DeckShuffleValidationMixin, DataManagerMixin):
         api_key = req.context['api_key']
         target = req.context['data']['target']
         req.context['result'] = self.shuffle_deck(api_key, deck_id, target)
+        res.status = falcon.HTTP_OK if req.context['result'] else falcon.HTTP_NOT_FOUND
+
+
+@falcon.before(api_key_required)
+class DeckItemDraw(DeckDrawValidationMixin, DataManagerMixin):
+
+    def on_put(self, req, res, deck_id):
+        api_key = req.context['api_key']
+        number_of_cards = req.context['data']['count']
+        req.context['result'] = self.draw_cards_from_deck(api_key, deck_id, number_of_cards)
         res.status = falcon.HTTP_OK if req.context['result'] else falcon.HTTP_NOT_FOUND
