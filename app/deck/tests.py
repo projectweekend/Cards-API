@@ -120,3 +120,55 @@ class DeckItemShuffleTestCase(AuthenticatedAPITestCase):
         self.assertEqual(self.srmock.status, falcon.HTTP_BAD_REQUEST)
         error_keys = body['description'].keys()
         self.assertIn('target', error_keys)
+
+
+class DeckItemDrawTestCase(AuthenticatedAPITestCase):
+
+    def setUp(self):
+        super(DeckItemDrawTestCase, self).setUp()
+        body = self.simulate_post(
+            DECK_COLLECTION_ROUTE,
+            VALID_DATA,
+            api_key=self.api_key)
+        self.deck_item_draw_route = '{0}/{1}/draw'.format(DECK_COLLECTION_ROUTE, body['id'])
+        self.deck_item_draw_route_not_exists = '{0}/999999/draw'.format(DECK_COLLECTION_ROUTE)
+
+    def test_draw_cards_deck_by_id(self):
+        body = self.simulate_put(
+            self.deck_item_draw_route,
+            {'count': 1},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_OK)
+        self.assertIn('id', body['deck'].keys())
+        self.assertEqual(body['deck']['remaining'], 51)
+        self.assertEqual(body['deck']['removed'], 1)
+        self.assertEqual(len(body['cards']), 1)
+        card_keys = body['cards'][0].keys()
+        self.assertIn('rank', card_keys)
+        self.assertIn('suit', card_keys)
+        self.assertIn('front', card_keys)
+        self.assertIn('back', card_keys)
+
+    def test_draw_cards_deck_by_id_not_exists(self):
+        self.simulate_put(
+            self.deck_item_draw_route_not_exists,
+            {'count': 1},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_NOT_FOUND)
+
+    def test_draw_cards_deck_with_invalid_data(self):
+        body = self.simulate_put(
+            self.deck_item_draw_route,
+            {},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_BAD_REQUEST)
+        error_keys = body['description'].keys()
+        self.assertIn('count', error_keys)
+
+        body = self.simulate_put(
+            self.deck_item_draw_route,
+            {'count': 0},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_BAD_REQUEST)
+        error_keys = body['description'].keys()
+        self.assertIn('count', error_keys)

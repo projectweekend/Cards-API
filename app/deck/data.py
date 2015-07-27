@@ -87,6 +87,7 @@ class DataManagerMixin(object):
         cards_drawn = []
         for n in range(number_cards):
             cards_drawn.append(deck['cards']['available'].pop(0))
+        deck['cards']['removed'].extend(cards_drawn)
         return {
             'deck': self._serialize_deck_result(deck),
             'cards': cards_drawn
