@@ -9,3 +9,13 @@ class DeckValidationMixin(BaseValidationMixin):
             'required': True
         }
     }
+
+
+class DeckShuffleValidationMixin(BaseValidationMixin):
+
+    schema_for_put = {
+        'target': {
+            'type': 'string',
+            'required': True
+        }
+    }

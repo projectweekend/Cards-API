@@ -97,7 +97,36 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
 {
     "id": 1,
     "remaining": 52,
-    "removed": 52
+    "removed": 0
+}
+```
+
+
+
+### Shuffle cards in deck
+
+**PUT:**
+```
+/deck/:id/shuffle
+```
+
+**Body:**
+```json
+{
+    "target": "all"
+}
+```
+
+**Notes:**
+
+* `target` - The target set of cards to shuffle `all` or `remaining`.
+
+**Response:**
+```json
+{
+    "id": 1,
+    "remaining": 52,
+    "removed": 0
 }
 ```
 

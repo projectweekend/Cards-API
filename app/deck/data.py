@@ -63,3 +63,17 @@ class DataManagerMixin(object):
         self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
         result = self.cursor.fetchone()
         return self._serialize_deck_result(result[0]) if result else result
+
+    def shuffle_deck(self, api_key, deck_id, target):
+        self.cursor.callproc('sp_app_decks_select', [api_key, deck_id, ])
+        result = self.cursor.fetchone()
+        if not result:
+            return None
+        deck = result[0]
+        if target == 'all':
+            deck['cards']['available'].extend(deck['cards']['removed'])
+            deck['cards']['removed'] = []
+        shuffle(deck['cards']['available'])
+        self.cursor.callproc('sp_app_decks_update', [api_key, deck_id, json.dumps(deck), ])
+        result = self.cursor.fetchone()
+        return self._serialize_deck_result(result[0]) if result else result
