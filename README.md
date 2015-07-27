@@ -155,8 +155,8 @@ All routes require that an API Key be included in the `X-API-Key` header. The AP
 {
     "deck": {
         "id": 1,
-        "remaining": 52,
-        "removed": 52
+        "remaining": 51,
+        "removed": 1
     },
     "cards": [
         {
