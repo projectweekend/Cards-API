@@ -172,3 +172,60 @@ class DeckItemDrawTestCase(AuthenticatedAPITestCase):
         self.assertEqual(self.srmock.status, falcon.HTTP_BAD_REQUEST)
         error_keys = body['description'].keys()
         self.assertIn('count', error_keys)
+
+
+class DeckFullTestCase(AuthenticatedAPITestCase):
+
+    def setUp(self):
+        super(DeckFullTestCase, self).setUp()
+        body = self.simulate_post(
+            DECK_COLLECTION_ROUTE,
+            VALID_DATA,
+            api_key=self.api_key)
+        self.deck_item_route = '{0}/{1}'.format(DECK_COLLECTION_ROUTE, body['id'])
+
+    def test_drawing_cards(self):
+        draw_route = '{0}/draw'.format(self.deck_item_route)
+        body = self.simulate_put(
+            draw_route,
+            {'count': 10},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_OK)
+        self.assertIn('id', body['deck'].keys())
+        self.assertEqual(body['deck']['remaining'], 42)
+        self.assertEqual(body['deck']['removed'], 10)
+        self.assertEqual(len(body['cards']), 10)
+        card_keys = body['cards'][0].keys()
+        self.assertIn('rank', card_keys)
+        self.assertIn('suit', card_keys)
+        self.assertIn('front', card_keys)
+        self.assertIn('back', card_keys)
+
+        # check state of deck
+        body = self.simulate_get(self.deck_item_route, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_OK)
+        self.assertIn('id', body.keys())
+        self.assertEqual(body['remaining'], 42)
+        self.assertEqual(body['removed'], 10)
+
+        # shuffle remaining cards
+        shuffle_route = '{0}/shuffle'.format(self.deck_item_route)
+        body = self.simulate_put(
+            shuffle_route,
+            {'target': 'remaining'},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_OK)
+        self.assertIn('id', body.keys())
+        self.assertEqual(body['remaining'], 42)
+        self.assertEqual(body['removed'], 10)
+
+        # shuffle all cards
+        shuffle_route = '{0}/shuffle'.format(self.deck_item_route)
+        body = self.simulate_put(
+            shuffle_route,
+            {'target': 'all'},
+            api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_OK)
+        self.assertIn('id', body.keys())
+        self.assertEqual(body['remaining'], 52)
+        self.assertEqual(body['removed'], 0)
