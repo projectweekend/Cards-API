@@ -1,5 +1,6 @@
 import json
 from random import shuffle
+from app.config import CARD_IMAGE_PATH
 
 
 CARDS = (
@@ -23,8 +24,8 @@ class DataManagerMixin(object):
     def _build_card(card):
         rank, s = card.split('_')
         suit = SUITS[s]
-        front_image = '/path/to/front/{0}-{1}.png'.format(rank, suit)
-        back_image = '/path/to/back.png'
+        front_image = '{0}/{1}-{2}.png'.format(CARD_IMAGE_PATH, rank, suit)
+        back_image = '{0}/back.png'.format(CARD_IMAGE_PATH)
         return {
             'rank': rank,
             'suit': SUITS[s],
@@ -55,8 +56,7 @@ class DataManagerMixin(object):
             'cards': {
                 'available': cards,
                 'removed': []
-            },
-            'groups': {}
+            }
         })
         self.cursor.callproc('sp_app_decks_insert', [api_key, deck, ])
         result = self.cursor.fetchone()
