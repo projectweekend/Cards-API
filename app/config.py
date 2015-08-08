@@ -14,3 +14,6 @@ assert DATABASE_URL
 
 CARD_IMAGE_PATH = os.getenv('CARD_IMAGE_PATH')
 assert CARD_IMAGE_PATH
+
+API_KEY = os.getenv('API_KEY')
+assert API_KEY
