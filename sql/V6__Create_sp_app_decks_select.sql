@@ -14,8 +14,7 @@ BEGIN
     RETURN      QUERY
     WITH d AS (
         SELECT          app_decks.id,
-                        app_decks.cards,
-                        app_decks.groups
+                        app_decks.cards
         FROM            app_decks
         JOIN            app_users
                         ON  app_decks.user_id = app_users.id AND

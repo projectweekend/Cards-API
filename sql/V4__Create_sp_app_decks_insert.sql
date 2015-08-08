@@ -16,17 +16,14 @@ BEGIN
         INSERT INTO     app_decks
                         (
                             user_id,
-                            cards,
-                            groups
+                            cards
                         )
         SELECT          app_users.id,
-                        CAST(deckDoc ->> 'cards' AS JSONB),
-                        CAST(deckDoc ->> 'groups' AS JSONB)
+                        CAST(deckDoc ->> 'cards' AS JSONB)
         FROM            app_users
         WHERE           app_users.api_key = apiKey
         RETURNING       app_decks.id,
-                        app_decks.cards,
-                        app_decks.groups
+                        app_decks.cards
     )
     SELECT      ROW_TO_JSON(i.*)
     FROM        i;
