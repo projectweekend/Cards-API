@@ -35,6 +35,28 @@ Routes
 All routes require that an API Key be included in the `X-API-Key` header. The API Key value is sent via email after registering a new account (**POST:** `/user`).
 
 
+### Create a user
+
+**POST:**
+```
+/user
+```
+
+**Body:**
+```json
+{
+    "email": "whatever@email.com"
+}
+```
+
+**Response:** None
+
+**Status Codes:**
+* `201` if successful
+* `400` if incorrect data provided
+* `409` if unique constraint violation
+
+
 
 ### Create a new deck
 
