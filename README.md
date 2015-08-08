@@ -5,6 +5,7 @@ There are just a couple of configurations managed as environment variables. In t
 
 * `DATABASE_URL` - This is the connection URL for the PostgreSQL database. It is not used in the **development environment**.
 * `DEBUG` - This toggles debug mode for the app to True/False.
+* `API_KEY` - A system wide API key validated in the `X-API-Key` header.
 
 
 
@@ -32,29 +33,7 @@ Tests, with code coverage reporting can be ran with the following command:
 Routes
 ====================
 
-All routes require that an API Key be included in the `X-API-Key` header. The API Key value is sent via email after registering a new account (**POST:** `/user`).
-
-
-### Create a user
-
-**POST:**
-```
-/user
-```
-
-**Body:**
-```json
-{
-    "email": "whatever@email.com"
-}
-```
-
-**Response:** None
-
-**Status Codes:**
-* `201` if successful
-* `400` if incorrect data provided
-* `409` if unique constraint violation
+All routes require that an API Key be included in the `X-API-Key` header.
 
 
 
