@@ -14,12 +14,11 @@ BEGIN
     RETURN      QUERY
     WITH d AS (
         SELECT          app_decks.id,
+                        app_decks.api_key,
                         app_decks.cards
         FROM            app_decks
-        JOIN            app_users
-                        ON  app_decks.user_id = app_users.id AND
-                            app_users.api_key = apiKey
-        WHERE           app_decks.id = deckId
+        WHERE           app_decks.api_key = apiKey AND
+                        app_decks.id = deckId
     )
     SELECT      ROW_TO_JSON(d.*)
     FROM        d;

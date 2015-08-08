@@ -3,7 +3,7 @@ import json
 from urlparse import urlparse
 from falcon.testing import TestBase
 from app import api, db
-from app.config import DATABASE_URL
+from app.config import DATABASE_URL, API_KEY
 
 
 HEADERS = {'Content-Type': 'application/json'}
@@ -100,13 +100,4 @@ class AuthenticatedAPITestCase(APITestCase):
 
     def setUp(self):
         super(AuthenticatedAPITestCase, self).setUp()
-        self.simulate_post(USER_COLLECTION_ROUTE, {'email': 'whatever@test.com'})
-        api_key_query = """
-        SELECT          api_key
-        FROM            app_users;
-        """
-        cursor = db.cursor()
-        cursor.execute(api_key_query)
-        result = cursor.fetchone()
-        self.api_key = result[0]
-        cursor.close()
+        self.api_key = API_KEY

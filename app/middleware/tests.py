@@ -1,6 +1,7 @@
 import falcon
 from falcon.testing import TestBase
 from app import api
+from app.config import API_KEY
 
 
 class MiddlewareTestCase(TestBase):
@@ -10,7 +11,10 @@ class MiddlewareTestCase(TestBase):
         self.simulate_request(
             path='/user',
             method='POST',
-            headers={'Content-Type': 'application/json'},
+            headers={
+                'Content-Type': 'application/json',
+                'X-API-Key': API_KEY
+            },
             body='not json')
         self.assertEqual(self.srmock.status, falcon.HTTP_400)
 
@@ -19,5 +23,8 @@ class MiddlewareTestCase(TestBase):
         self.simulate_request(
             path='/user',
             method='POST',
+            headers={
+                'X-API-Key': API_KEY
+            },
             body='not json')
         self.assertEqual(self.srmock.status, falcon.HTTP_400)

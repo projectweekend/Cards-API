@@ -1,5 +1,4 @@
 import falcon
-from app.utils.hooks import api_key_required
 from app.deck.validation import (
     DeckValidationMixin,
     DeckShuffleValidationMixin,
@@ -7,7 +6,6 @@ from app.deck.validation import (
 from app.deck.data import DataManagerMixin
 
 
-@falcon.before(api_key_required)
 class DeckCollection(DeckValidationMixin, DataManagerMixin):
 
     def on_post(self, req, res):
@@ -22,7 +20,6 @@ class DeckCollection(DeckValidationMixin, DataManagerMixin):
         res.status = falcon.HTTP_OK
 
 
-@falcon.before(api_key_required)
 class DeckItem(DeckValidationMixin, DataManagerMixin):
 
     def on_get(self, req, res, deck_id):
@@ -31,7 +28,6 @@ class DeckItem(DeckValidationMixin, DataManagerMixin):
         res.status = falcon.HTTP_OK if req.context['result'] else falcon.HTTP_NOT_FOUND
 
 
-@falcon.before(api_key_required)
 class DeckItemShuffle(DeckShuffleValidationMixin, DataManagerMixin):
 
     def on_put(self, req, res, deck_id):
@@ -41,7 +37,6 @@ class DeckItemShuffle(DeckShuffleValidationMixin, DataManagerMixin):
         res.status = falcon.HTTP_OK if req.context['result'] else falcon.HTTP_NOT_FOUND
 
 
-@falcon.before(api_key_required)
 class DeckItemDraw(DeckDrawValidationMixin, DataManagerMixin):
 
     def on_put(self, req, res, deck_id):

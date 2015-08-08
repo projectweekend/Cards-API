@@ -16,11 +16,10 @@ BEGIN
     WITH i AS (
         UPDATE          app_decks
         SET             cards = CAST(deckDoc ->> 'cards' AS JSONB)
-        FROM            app_users
-        WHERE           app_decks.id = deckId AND
-                        app_decks.user_id = app_users.id AND
-                        app_users.api_key = apiKey
+        WHERE           app_decks.api_key = apiKey AND
+                        app_decks.id = deckId
         RETURNING       app_decks.id,
+                        app_decks.api_key,
                         app_decks.cards
     )
     SELECT      ROW_TO_JSON(i.*)
