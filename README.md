@@ -60,9 +60,14 @@ All routes require that an API Key be included in the `X-API-Key` header.
 {
     "id": 1,
     "remaining": 52,
-    "removed": 52
+    "removed": 0
 }
 ```
+
+**Status:**
+
+* `201` if successful
+* `400` if invalid data
 
 
 
@@ -79,10 +84,14 @@ All routes require that an API Key be included in the `X-API-Key` header.
     {
         "id": 1,
         "remaining": 52,
-        "removed": 52
+        "removed": 0
     }
 ]
 ```
+
+**Status:**
+
+* `200` if successful
 
 
 
@@ -101,6 +110,9 @@ All routes require that an API Key be included in the `X-API-Key` header.
     "removed": 0
 }
 ```
+
+* `200` if successful
+* `404` if not found
 
 
 
@@ -130,6 +142,9 @@ All routes require that an API Key be included in the `X-API-Key` header.
     "removed": 0
 }
 ```
+
+* `200` if successful
+* `404` if not found
 
 
 
