@@ -29,39 +29,3 @@ class Card(StandardPlayingCard):
             back_image = '{0}/back.png'.format(config['image_path'])
             front_image = '{0}/{1}-{2}.png'.format(config['image_path'], rank, suit)
             yield cls(rank=rank, suit=suit, back_image=back_image, front_image=front_image)
-
-
-class DeckOfCards(object):
-
-    def __init__(self, id, api_key, deck):
-        self.id = id
-        self.api_key = api_key
-        self.deck = deck
-
-    def shuffle(self):
-        self.deck.shuffle()
-
-    def save(self, cursor):
-        if self.id is None:
-            sql_params = [self.api_key, self.deck.to_json(), ]
-            cursor.callproc('sp_app_decks_insert', sql_params)
-            result = cursor.fetchone()
-            self.id = result[0]['id']
-        else:
-            sql_params = [self.api_key, self.id, self.deck.to_json(), ]
-            cursor.callproc('sp_app_decks_update', sql_params)
-
-    def to_dict(self):
-        output = {}
-        for k, v in self.__dict__.items():
-            if k == 'deck':
-                output['cards_remaining'] = v.cards_remaining
-                output['cards_removed'] = v.cards_removed
-            else:
-                output[k] = v
-        return output
-
-    @classmethod
-    def create(cls, api_key, count=1):
-        deck = Deck.generate_deck(card_cls=Card, count=count)
-        return cls(id=None, api_key=api_key, deck=deck)
