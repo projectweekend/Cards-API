@@ -15,7 +15,7 @@ BEGIN
     WITH d AS (
         SELECT          app_decks.id,
                         app_decks.api_key,
-                        app_decks.cards
+                        app_decks.deck
         FROM            app_decks
         WHERE           app_decks.api_key = apiKey AND
                         app_decks.id = deckId

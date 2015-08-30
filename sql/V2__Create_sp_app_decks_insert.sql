@@ -1,12 +1,12 @@
 CREATE FUNCTION sp_app_decks_insert
 (
-    apiKey TEXT,
-    deckDoc JSONB
+    apiKey      TEXT,
+    deckDoc     JSONB
 )
 
 RETURNS TABLE
 (
-    resultDoc JSON
+    resultDoc   JSON
 ) AS
 
 $$
@@ -16,13 +16,15 @@ BEGIN
         INSERT INTO     app_decks
                         (
                             api_key,
-                            cards
+                            deck
                         )
-        SELECT          apiKey,
-                        CAST(deckDoc ->> 'cards' AS JSONB)
+        VALUES          (
+                            apiKey,
+                            deckDoc
+                        )
         RETURNING       app_decks.id,
                         app_decks.api_key,
-                        app_decks.cards
+                        app_decks.deck
     )
     SELECT      ROW_TO_JSON(i.*)
     FROM        i;
