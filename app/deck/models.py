@@ -1,6 +1,6 @@
 import json
-from pycards import Deck
-from pycards import StandardPlayingCard
+from pycards import BaseDeck
+from pycards import PlayingCardWithImages
 from app.config import CARD_IMAGE_PATH
 
 
@@ -15,17 +15,13 @@ DEFAULT_CARDS_CONFIG = {
 }
 
 
-class Card(StandardPlayingCard):
+class DeckOfCards(BaseDeck):
 
-    def __init__(self, rank, suit, back_image, front_image):
-        super(Card, self).__init__(rank=rank, suit=suit)
-        self.back_image = back_image
-        self.front_image = front_image
+    def __init__(self, api_key, count=1):
+        cards = list(PlayingCardWithImages.generate_cards(config=DEFAULT_CARDS_CONFIG))
+        super(DeckOfCards, self).__init__(cards=cards, count=count)
+        self.id = None
+        self.api_key = api_key
 
-    @classmethod
-    def generate_cards(cls, config=DEFAULT_CARDS_CONFIG):
-        for card in config['cards']:
-            rank, suit = card.split('_')
-            back_image = '{0}/back.png'.format(config['image_path'])
-            front_image = '{0}/{1}-{2}.png'.format(config['image_path'], rank, suit)
-            yield cls(rank=rank, suit=suit, back_image=back_image, front_image=front_image)
+    def save(self):
+        pass
