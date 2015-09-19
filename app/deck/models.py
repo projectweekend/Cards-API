@@ -52,8 +52,8 @@ class DeckOfCards(object):
     @classmethod
     def from_db_result(cls, result):
         deck_dict = {
-            'cards_remaining': result['cards_remaining'],
-            'cards_removed': result['cards_removed']
+            'cards_remaining': result['deck']['cards_remaining'],
+            'cards_removed': result['deck']['cards_removed']
         }
         deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=deck_dict)
         return cls(api_key=result['api_key'], id=result['id'], deck=deck)

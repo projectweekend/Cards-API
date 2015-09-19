@@ -16,4 +16,9 @@ class DeckCollection(ValidationMixin):
         res.status = falcon.HTTP_201
 
     def on_get(self, req, res):
-        pass
+        api_key = req.context['api_key']
+
+        decks_of_cards = DeckOfCards.get_list(cursor=self.cursor, api_key=api_key)
+
+        req.context['result'] = [deck.to_response_dict() for deck in decks_of_cards]
+        res.status = falcon.HTTP_200
