@@ -42,12 +42,28 @@ class DeckOfCards(object):
             # raise a not found exception
             pass
 
+    def to_response_dict(self):
+        return {
+            'id': self.id,
+            'remaining': self.deck.cards_remaining,
+            'removed': self.deck.cards_removed
+        }
+
+    @classmethod
+    def from_db_result(cls, result):
+        deck_dict = {
+            'cards_remaining': result['cards_remaining'],
+            'cards_removed': result['cards_removed']
+        }
+        deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=deck_dict)
+        return cls(api_key=result['api_key'], id=result['id'], deck=deck)
+
     @classmethod
     def get_list(cls, cursor, api_key):
         cursor.callproc('sp_app_deck_list', [api_key, ])
         result = cursor.fetchone()
-        for item in result:
-            pass
+        decks_of_cards = [cls.from_db_result(result=r) for r in result[1]]
+        return decks_of_cards
 
     @classmethod
     def get_one(cls, cursor, api_key, id):
@@ -56,7 +72,5 @@ class DeckOfCards(object):
         if not result:
             # raise a not found exception
             pass
-        result = result[0]
-        # Need to be able to create a deck specifying cards remaining and removed instead of just cards
-        # generate list of cards from json
-        # return cls passing in the cards
+        deck_of_cards = cls.from_db_result(result=result[0])
+        return deck_of_cards

@@ -25,4 +25,3 @@ class DeckCollectionTestCase(AuthenticatedAPITestCase):
     def test_create_a_deck_with_invalid_data(self):
         self.simulate_post(DECK_COLLECTION_ROUTE, INVALID_DATA, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_400)
-        # self.assertNotEqual(len(body['token']), 0)

@@ -12,9 +12,8 @@ class DeckCollection(ValidationMixin):
         deck_of_cards = DeckOfCards(api_key=api_key, count=count)
         deck_of_cards.save(cursor=self.cursor)
 
-        req.context['result'] = {
-            'id': deck_of_cards.id,
-            'remaining': deck_of_cards.deck.cards_remaining,
-            'removed': deck_of_cards.deck.cards_removed
-        }
+        req.context['result'] = deck_of_cards.to_response_dict()
         res.status = falcon.HTTP_201
+
+    def on_get(self, req, res):
+        pass
