@@ -9,12 +9,12 @@ class DeckCollection(ValidationMixin):
         count = req.context['data']['count']
         api_key = req.context['api_key']
 
-        deck = DeckOfCards(api_key=api_key, count=count)
-        deck.save()
+        deck_of_cards = DeckOfCards(api_key=api_key, count=count)
+        deck_of_cards.save(cursor=self.cursor)
 
         req.context['result'] = {
-            'id': deck.id,
-            'remaining': deck.cards_remaining,
-            'removed': deck.cards_removed
+            'id': deck_of_cards.id,
+            'remaining': deck_of_cards.deck.cards_remaining,
+            'removed': deck_of_cards.deck.cards_removed
         }
         res.status = falcon.HTTP_201

@@ -15,13 +15,48 @@ DEFAULT_CARDS_CONFIG = {
 }
 
 
-class DeckOfCards(BaseDeck):
+class DeckOfCards(object):
 
-    def __init__(self, api_key, count=1):
+    def __init__(self, api_key, id=None, deck=None, count=1):
         cards = list(PlayingCardWithImages.generate_cards(config=DEFAULT_CARDS_CONFIG))
-        super(DeckOfCards, self).__init__(cards=cards, count=count)
-        self.id = None
+        self.id = id
         self.api_key = api_key
+        if deck is None:
+            self.deck = BaseDeck(cards=cards, count=count)
+        else:
+            self.deck = deck
 
-    def save(self):
-        pass
+    def save(self, cursor):
+        deck_json = self.deck.to_json()
+        if self.id is None:
+            cursor.callproc('sp_app_deck_insert', [self.api_key, deck_json, ])
+            result = cursor.fetchone()
+            self.id = result[0]['id']
+        else:
+            cursor.callproc('sp_app_deck_update', [self.id, self.api_key, deck_json, ])
+
+    def delete(self, cursor):
+        cursor.callproc('sp_app_deck_delete', [self.id, self.api_key, ])
+        result = cursor.fetchone()
+        if not result:
+            # raise a not found exception
+            pass
+
+    @classmethod
+    def get_list(cls, cursor, api_key):
+        cursor.callproc('sp_app_deck_list', [api_key, ])
+        result = cursor.fetchone()
+        for item in result:
+            pass
+
+    @classmethod
+    def get_one(cls, cursor, api_key, id):
+        cursor.callproc('sp_app_deck_select', [id, api_key, ])
+        result = cursor.fetchone()
+        if not result:
+            # raise a not found exception
+            pass
+        result = result[0]
+        # Need to be able to create a deck specifying cards remaining and removed instead of just cards
+        # generate list of cards from json
+        # return cls passing in the cards
