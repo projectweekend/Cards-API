@@ -1,12 +1,19 @@
 import falcon
+from pycards import BaseDeck, PlayingCardWithImages
+from pycards.errors import NoCardsRemaining
+from app.config import DEFAULT_CARDS_CONFIG
 from app.deck.mixins import (
     CollectionValidationMixin,
     ShuffleValidationMixin,
     DrawValidationMixin)
-from app.deck.models import (
-    DeckOfCards,
-    DeckDoesNotExistError,
-    DeckHasNoCardsError)
+
+
+def to_response_dict(id, deck):
+        return {
+            'id': id,
+            'remaining': deck.cards_remaining,
+            'removed': deck.cards_removed
+        }
 
 
 class DeckCollection(CollectionValidationMixin):
@@ -14,15 +21,28 @@ class DeckCollection(CollectionValidationMixin):
     def on_post(self, req, res):
         count = req.context['data']['count']
         api_key = req.context['api_key']
-        deck_of_cards = DeckOfCards(api_key=api_key, count=count)
-        deck_of_cards.save(cursor=self.cursor)
-        req.context['result'] = deck_of_cards.to_response_dict()
+
+        cards = list(PlayingCardWithImages.generate_cards(config=DEFAULT_CARDS_CONFIG))
+        deck = BaseDeck(cards=cards, count=count)
+        deck.shuffle()
+
+        sql_params = [api_key, deck.to_json()]
+        self.cursor.callproc('sp_app_deck_insert', sql_params)
+        result = self.cursor.fetchone()
+
+        req.context['result'] = to_response_dict(id=result[0]['id'], deck=deck)
         res.status = falcon.HTTP_201
 
     def on_get(self, req, res):
         api_key = req.context['api_key']
-        decks_of_cards = DeckOfCards.get_list_from_db(cursor=self.cursor, api_key=api_key)
-        req.context['result'] = [deck.to_response_dict() for deck in decks_of_cards]
+
+        self.cursor.callproc('sp_app_deck_list', [api_key, ])
+        result = self.cursor.fetchone()
+
+        req.context['result'] = []
+        for r in result[1]:
+            deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=r['deck'])
+            req.context['result'].append(to_response_dict(id=r['id'], deck=deck))
         res.status = falcon.HTTP_200
 
 
@@ -30,47 +50,42 @@ class DeckItem(object):
 
     def on_get(self, req, res, deck_id):
         api_key = req.context['api_key']
-        try:
-            deck_of_cards = DeckOfCards.get_one_from_db(
-                cursor=self.cursor,
-                api_key=api_key,
-                id=deck_id)
-        except DeckDoesNotExistError:
-            res.status = falcon.HTTP_404
-        else:
-            req.context['result'] = deck_of_cards.to_response_dict()
-            res.status = falcon.HTTP_200
+
+        self.cursor.callproc('sp_app_deck_select', [deck_id, api_key, ])
+        result = self.cursor.fetchone()
+        if not result:
+            raise falcon.HTTPNotFound
+
+        deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=result[0]['deck'])
+        req.context['result'] = to_response_dict(id=result[0]['id'], deck=deck)
+        res.status = falcon.HTTP_200
 
     def on_delete(self, req, res, deck_id):
         api_key = req.context['api_key']
-        try:
-            deck_of_cards = DeckOfCards.get_one_from_db(
-                cursor=self.cursor,
-                api_key=api_key,
-                id=deck_id)
-        except DeckDoesNotExistError:
-            res.status = falcon.HTTP_404
-        else:
-            deck_of_cards.delete(cursor=self.cursor)
-            res.status = falcon.HTTP_204
+
+        self.cursor.callproc('sp_app_deck_delete', [deck_id, api_key, ])
+        result = self.cursor.fetchone()
+        if not result[0]:
+            raise falcon.HTTPNotFound
+        res.status = falcon.HTTP_204
 
 
 class DeckItemShuffle(ShuffleValidationMixin):
 
     def on_post(self, req, res, deck_id):
         api_key = req.context['api_key']
-        try:
-            deck_of_cards = DeckOfCards.get_one_from_db(
-                cursor=self.cursor,
-                api_key=api_key,
-                id=deck_id)
-        except DeckDoesNotExistError:
-            res.status = falcon.HTTP_404
-        else:
-            deck_of_cards.shuffle()
-            deck_of_cards.save(cursor=self.cursor)
-            req.context['result'] = deck_of_cards.to_response_dict()
-            res.status = falcon.HTTP_200
+
+        self.cursor.callproc('sp_app_deck_select', [deck_id, api_key, ])
+        result = self.cursor.fetchone()
+        if not result:
+            raise falcon.HTTPNotFound
+
+        deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=result[0]['deck'])
+        deck.shuffle()
+
+        self.cursor.callproc('sp_app_deck_update', [deck_id, api_key, deck.to_json(), ])
+        req.context['result'] = to_response_dict(id=result[0]['id'], deck=deck)
+        res.status = falcon.HTTP_200
 
 
 class DeckItemDraw(DrawValidationMixin):
@@ -78,22 +93,22 @@ class DeckItemDraw(DrawValidationMixin):
     def on_post(self, req, res, deck_id):
         api_key = req.context['api_key']
         count = req.context['data']['count']
+
+        self.cursor.callproc('sp_app_deck_select', [deck_id, api_key, ])
+        result = self.cursor.fetchone()
+        if not result:
+            raise falcon.HTTPNotFound
+
+        deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=result[0]['deck'])
         try:
-            deck_of_cards = DeckOfCards.get_one_from_db(
-                cursor=self.cursor,
-                api_key=api_key,
-                id=deck_id)
-        except DeckDoesNotExistError:
-            res.status = falcon.HTTP_404
-        else:
-            try:
-                cards_drawn = deck_of_cards.draw_card(count=count)
-            except DeckHasNoCardsError:
-                res.status = falcon.HTTP_409
-            else:
-                deck_of_cards.save(cursor=self.cursor)
-                req.context['result'] = {
-                    'deck': deck_of_cards.to_response_dict(),
-                    'cards': [card.to_dict() for card in cards_drawn]
-                }
-                res.status = falcon.HTTP_200
+            cards = [deck.draw_card() for _ in range(count)]
+        except NoCardsRemaining:
+            raise falcon.HTTPConflict(title='Conflict', description='Deck is empty')
+
+        self.cursor.callproc('sp_app_deck_update', [deck_id, api_key, deck.to_json(), ])
+
+        req.context['result'] = {
+            'deck': to_response_dict(id=result[0]['id'], deck=deck),
+            'cards': [card.to_dict() for card in cards]
+        }
+        res.status = falcon.HTTP_200
