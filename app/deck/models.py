@@ -15,6 +15,11 @@ DEFAULT_CARDS_CONFIG = {
 }
 
 
+class DoesNotExistError(Exception):
+
+    pass
+
+
 class DeckOfCards(object):
 
     def __init__(self, api_key, id=None, deck=None, count=1):
@@ -39,8 +44,7 @@ class DeckOfCards(object):
         cursor.callproc('sp_app_deck_delete', [self.id, self.api_key, ])
         result = cursor.fetchone()
         if not result:
-            # raise a not found exception
-            pass
+            raise DoesNotExistError
 
     def to_response_dict(self):
         return {
@@ -59,18 +63,17 @@ class DeckOfCards(object):
         return cls(api_key=result['api_key'], id=result['id'], deck=deck)
 
     @classmethod
-    def get_list(cls, cursor, api_key):
+    def get_list_from_db(cls, cursor, api_key):
         cursor.callproc('sp_app_deck_list', [api_key, ])
         result = cursor.fetchone()
         decks_of_cards = [cls.from_db_result(result=r) for r in result[1]]
         return decks_of_cards
 
     @classmethod
-    def get_one(cls, cursor, api_key, id):
+    def get_one_from_db(cls, cursor, api_key, id):
         cursor.callproc('sp_app_deck_select', [id, api_key, ])
         result = cursor.fetchone()
         if not result:
-            # raise a not found exception
-            pass
+            raise DoesNotExistError
         deck_of_cards = cls.from_db_result(result=result[0])
         return deck_of_cards
