@@ -8,7 +8,7 @@ from app.deck.mixins import (
     DrawValidationMixin)
 
 
-def to_response_dict(id, deck):
+def to_deck_response(id, deck):
         return {
             'id': id,
             'remaining': deck.cards_remaining,
@@ -30,7 +30,7 @@ class DeckCollection(CollectionValidationMixin):
         self.cursor.callproc('sp_app_deck_insert', sql_params)
         result = self.cursor.fetchone()
 
-        req.context['result'] = to_response_dict(id=result[0]['id'], deck=deck)
+        req.context['result'] = to_deck_response(id=result[0]['id'], deck=deck)
         res.status = falcon.HTTP_201
 
     def on_get(self, req, res):
@@ -42,7 +42,7 @@ class DeckCollection(CollectionValidationMixin):
         req.context['result'] = []
         for r in result[1]:
             deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=r['deck'])
-            req.context['result'].append(to_response_dict(id=r['id'], deck=deck))
+            req.context['result'].append(to_deck_response(id=r['id'], deck=deck))
         res.status = falcon.HTTP_200
 
 
@@ -57,7 +57,7 @@ class DeckItem(object):
             raise falcon.HTTPNotFound
 
         deck = BaseDeck.from_dict(card_cls=PlayingCardWithImages, deck_dict=result[0]['deck'])
-        req.context['result'] = to_response_dict(id=result[0]['id'], deck=deck)
+        req.context['result'] = to_deck_response(id=result[0]['id'], deck=deck)
         res.status = falcon.HTTP_200
 
     def on_delete(self, req, res, deck_id):
@@ -84,7 +84,7 @@ class DeckItemShuffle(ShuffleValidationMixin):
         deck.shuffle()
 
         self.cursor.callproc('sp_app_deck_update', [deck_id, api_key, deck.to_json(), ])
-        req.context['result'] = to_response_dict(id=result[0]['id'], deck=deck)
+        req.context['result'] = to_deck_response(id=result[0]['id'], deck=deck)
         res.status = falcon.HTTP_200
 
 
@@ -108,7 +108,7 @@ class DeckItemDraw(DrawValidationMixin):
         self.cursor.callproc('sp_app_deck_update', [deck_id, api_key, deck.to_json(), ])
 
         req.context['result'] = {
-            'deck': to_response_dict(id=result[0]['id'], deck=deck),
+            'deck': to_deck_response(id=result[0]['id'], deck=deck),
             'cards': [card.to_dict() for card in cards]
         }
         res.status = falcon.HTTP_200
