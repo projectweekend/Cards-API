@@ -7,9 +7,10 @@ assert API_KEY
 CARD_IMAGE_PATH = os.getenv('CARD_IMAGE_PATH')
 assert CARD_IMAGE_PATH
 
-DATABASE_URL = os.getenv(
-    'DATABASE_URL',
-    'postgres://postgres@{0}:5432/postgres'.format(os.getenv('DB_PORT_5432_TCP_ADDR', None)))
+DOCKER_COMPOSE_DB_URL = 'postgres://postgres@{0}:5432/postgres'
+DOCKER_COMPOSE_DB_ADDR = os.getenv('DB_PORT_5432_TCP_ADDR', None)
+
+DATABASE_URL = os.getenv('DATABASE_URL', DOCKER_COMPOSE_DB_URL.format(DOCKER_COMPOSE_DB_ADDR))
 assert DATABASE_URL
 
 DEFAULT_CARDS_CONFIG = {
