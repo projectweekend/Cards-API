@@ -34,6 +34,10 @@ class DeckOfCards(object):
     def shuffle(self):
         self.deck.shuffle()
 
+    def draw_card(self):
+        card = self.deck.draw_card()
+        return card
+
     def save(self, cursor):
         deck_json = self.deck.to_json()
         if self.id is None:

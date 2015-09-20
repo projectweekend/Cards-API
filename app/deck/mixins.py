@@ -23,3 +23,9 @@ class ShuffleValidationMixin(object):
 
     def validate_post(self, data):
         pass
+
+
+class DrawValidationMixin(object):
+
+    def validate_post(self, data):
+        pass

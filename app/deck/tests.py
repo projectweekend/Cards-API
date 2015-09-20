@@ -90,3 +90,46 @@ class DeckItemShuffleTestCase(AuthenticatedAPITestCase):
     def test_shuffle_deck_not_exists(self):
         self.simulate_post(self.deck_item_shuffle_route_not_exists, {}, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_404)
+
+
+class DeckItemDrawTestCase(AuthenticatedAPITestCase):
+
+    def setUp(self):
+        super(DeckItemDrawTestCase, self).setUp()
+        body = self.simulate_post(DECK_COLLECTION_ROUTE, VALID_DATA, api_key=self.api_key)
+        self.deck_id = body['id']
+        self.deck_item_draw_route = '{0}/{1}/draw'.format(DECK_COLLECTION_ROUTE, self.deck_id)
+        self.deck_item_draw_route_not_exists = '{0}/9999999/draw'.format(DECK_COLLECTION_ROUTE)
+
+    def test_draw_card(self):
+        body = self.simulate_post(self.deck_item_draw_route, {}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_200)
+
+        deck = body['deck']
+        self.assertEqual(deck['id'], self.deck_id)
+        self.assertEqual(deck['remaining'], 51)
+        self.assertEqual(deck['removed'], 1)
+
+        card = body['card']
+        self.assertIn('rank', card)
+        self.assertIn('suit', card)
+        self.assertIn('front_image', card)
+        self.assertIn('back_image', card)
+
+        body = self.simulate_post(self.deck_item_draw_route, {}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_200)
+
+        deck = body['deck']
+        self.assertEqual(deck['id'], self.deck_id)
+        self.assertEqual(deck['remaining'], 50)
+        self.assertEqual(deck['removed'], 2)
+
+        card = body['card']
+        self.assertIn('rank', card)
+        self.assertIn('suit', card)
+        self.assertIn('front_image', card)
+        self.assertIn('back_image', card)
+
+    def test_draw_card_deck_not_exists(self):
+        self.simulate_post(self.deck_item_draw_route_not_exists, {}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_404)
