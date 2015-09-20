@@ -1,9 +1,9 @@
 import falcon
-from app.deck.mixins import ValidationMixin
+from app.deck.mixins import CollectionValidationMixin, ShuffleValidationMixin
 from app.deck.models import DeckOfCards, DoesNotExistError
 
 
-class DeckCollection(ValidationMixin):
+class DeckCollection(CollectionValidationMixin):
 
     def on_post(self, req, res):
         count = req.context['data']['count']
@@ -47,3 +47,21 @@ class DeckItem(object):
         else:
             deck_of_cards.delete(cursor=self.cursor)
             res.status = falcon.HTTP_204
+
+
+class DeckItemShuffle(ShuffleValidationMixin):
+
+    def on_post(self, req, res, deck_id):
+        api_key = req.context['api_key']
+        try:
+            deck_of_cards = DeckOfCards.get_one_from_db(
+                cursor=self.cursor,
+                api_key=api_key,
+                id=deck_id)
+        except DoesNotExistError:
+            res.status = falcon.HTTP_404
+        else:
+            deck_of_cards.shuffle()
+            deck_of_cards.save(cursor=self.cursor)
+            req.context['result'] = deck_of_cards.to_response_dict()
+            res.status = falcon.HTTP_200

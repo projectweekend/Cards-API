@@ -9,7 +9,7 @@ DECK_CREATE_SCHEMA = {
 }
 
 
-class ValidationMixin(object):
+class CollectionValidationMixin(object):
 
     def validate_post(self, data):
         v = Validator(DECK_CREATE_SCHEMA)
@@ -17,3 +17,9 @@ class ValidationMixin(object):
             raise falcon.HTTPBadRequest(
                 title='Bad Request',
                 description=v.errors)
+
+
+class ShuffleValidationMixin(object):
+
+    def validate_post(self, data):
+        pass
