@@ -34,3 +34,16 @@ class DeckItem(object):
         else:
             req.context['result'] = deck_of_cards.to_response_dict()
             res.status = falcon.HTTP_200
+
+    def on_delete(self, req, res, deck_id):
+        api_key = req.context['api_key']
+        try:
+            deck_of_cards = DeckOfCards.get_one_from_db(
+                cursor=self.cursor,
+                api_key=api_key,
+                id=deck_id)
+        except DoesNotExistError:
+            res.status = falcon.HTTP_404
+        else:
+            deck_of_cards.delete(cursor=self.cursor)
+            res.status = falcon.HTTP_204

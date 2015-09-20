@@ -51,13 +51,21 @@ class DeckItemTestCase(AuthenticatedAPITestCase):
         self.deck_item_route = '{0}/{1}'.format(DECK_COLLECTION_ROUTE, self.deck_id)
         self.deck_item_route_not_exists = '{0}/9999999'.format(DECK_COLLECTION_ROUTE)
 
-    def test_get_a_deck_for_id(self):
+    def test_get_deck(self):
         body = self.simulate_get(self.deck_item_route, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_200)
         self.assertEqual(body['id'], self.deck_id)
         self.assertEqual(body['remaining'], 52)
         self.assertEqual(body['removed'], 0)
 
-    def test_get_a_deck_id_not_exists(self):
+    def test_get_deck_not_exists(self):
         self.simulate_get(self.deck_item_route_not_exists, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_404)
+
+    def test_delete_deck(self):
+        self.simulate_delete(self.deck_item_route, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_204)
+
+    def test_delete_deck_not_exists(self):
+        self.simulate_delete(self.deck_item_route_not_exists, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_404)
