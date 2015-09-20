@@ -3,8 +3,9 @@ Environment Variables
 
 There are just a couple of configurations managed as environment variables. In the development environment, these are injected by Docker Compose and managed in the `docker-compose.yml` file.
 
-* `DATABASE_URL` - This is the connection URL for the PostgreSQL database. It is not used in the **development environment**.
 * `API_KEY` - A system wide API key validated in the `X-API-Key` header.
+* `DATABASE_URL` - This is the connection URL for the PostgreSQL database. It is not used in the **development environment**.
+* `CARD_IMAGE_PATH` - Path where card images are served.
 
 
 
