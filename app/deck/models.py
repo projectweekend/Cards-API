@@ -1,6 +1,5 @@
-import json
-from pycards import BaseDeck
-from pycards import PlayingCardWithImages
+from pycards import BaseDeck, PlayingCardWithImages
+from pycards.errors import NoCardsRemaining
 from app.config import CARD_IMAGE_PATH
 
 
@@ -15,7 +14,12 @@ DEFAULT_CARDS_CONFIG = {
 }
 
 
-class DoesNotExistError(Exception):
+class DeckDoesNotExistError(Exception):
+
+    pass
+
+
+class DeckHasNoCardsError(Exception):
 
     pass
 
@@ -34,9 +38,11 @@ class DeckOfCards(object):
     def shuffle(self):
         self.deck.shuffle()
 
-    def draw_card(self):
-        card = self.deck.draw_card()
-        return card
+    def draw_card(self, count=1):
+        try:
+            return [self.deck.draw_card() for _ in range(count)]
+        except NoCardsRemaining:
+            raise DeckHasNoCardsError
 
     def save(self, cursor):
         deck_json = self.deck.to_json()
@@ -51,7 +57,7 @@ class DeckOfCards(object):
         cursor.callproc('sp_app_deck_delete', [self.id, self.api_key, ])
         result = cursor.fetchone()
         if not result:
-            raise DoesNotExistError
+            raise DeckDoesNotExistError
 
     def to_response_dict(self):
         return {
@@ -81,6 +87,6 @@ class DeckOfCards(object):
         cursor.callproc('sp_app_deck_select', [id, api_key, ])
         result = cursor.fetchone()
         if not result:
-            raise DoesNotExistError
+            raise DeckDoesNotExistError
         deck_of_cards = cls.from_db_result(result=result[0])
         return deck_of_cards

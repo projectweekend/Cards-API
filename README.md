@@ -112,7 +112,7 @@ All routes require that an API Key be included in the `X-API-Key` header.
 ```
 
 * `200` if successful
-* `404` if not found
+* `404` if deck not found
 
 
 
@@ -144,7 +144,7 @@ All routes require that an API Key be included in the `X-API-Key` header.
 ```
 
 * `200` if successful
-* `404` if not found
+* `404` if deck not found
 
 
 
@@ -184,3 +184,7 @@ All routes require that an API Key be included in the `X-API-Key` header.
     ]
 }
 ```
+
+* `200` if successful
+* `404` if deck not found
+* `409` if deck is empty

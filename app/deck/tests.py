@@ -102,7 +102,7 @@ class DeckItemDrawTestCase(AuthenticatedAPITestCase):
         self.deck_item_draw_route_not_exists = '{0}/9999999/draw'.format(DECK_COLLECTION_ROUTE)
 
     def test_draw_card(self):
-        body = self.simulate_post(self.deck_item_draw_route, {}, api_key=self.api_key)
+        body = self.simulate_post(self.deck_item_draw_route, {'count': 1}, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_200)
 
         deck = body['deck']
@@ -110,26 +110,51 @@ class DeckItemDrawTestCase(AuthenticatedAPITestCase):
         self.assertEqual(deck['remaining'], 51)
         self.assertEqual(deck['removed'], 1)
 
-        card = body['card']
-        self.assertIn('rank', card)
-        self.assertIn('suit', card)
-        self.assertIn('front_image', card)
-        self.assertIn('back_image', card)
+        cards = body['cards']
+        self.assertEqual(len(cards), 1)
+        self.assertIn('rank', cards[0])
+        self.assertIn('suit', cards[0])
+        self.assertIn('front_image', cards[0])
+        self.assertIn('back_image', cards[0])
 
-        body = self.simulate_post(self.deck_item_draw_route, {}, api_key=self.api_key)
+        body = self.simulate_post(self.deck_item_draw_route, {'count': 5}, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_200)
 
         deck = body['deck']
         self.assertEqual(deck['id'], self.deck_id)
-        self.assertEqual(deck['remaining'], 50)
-        self.assertEqual(deck['removed'], 2)
+        self.assertEqual(deck['remaining'], 46)
+        self.assertEqual(deck['removed'], 6)
 
-        card = body['card']
-        self.assertIn('rank', card)
-        self.assertIn('suit', card)
-        self.assertIn('front_image', card)
-        self.assertIn('back_image', card)
+        cards = body['cards']
+        self.assertEqual(len(cards), 5)
+        for card in cards:
+            self.assertIn('rank', card)
+            self.assertIn('suit', card)
+            self.assertIn('front_image', card)
+            self.assertIn('back_image', card)
+
+    def test_draw_card_from_empty_deck(self):
+        body = self.simulate_post(self.deck_item_draw_route, {'count': 52}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_200)
+
+        deck = body['deck']
+        self.assertEqual(deck['id'], self.deck_id)
+        self.assertEqual(deck['remaining'], 0)
+        self.assertEqual(deck['removed'], 52)
+
+        cards = body['cards']
+        self.assertEqual(len(cards), 52)
+
+        self.simulate_post(self.deck_item_draw_route, {'count': 1}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_409)
+
+    def test_draw_card_invalid_data(self):
+        self.simulate_post(self.deck_item_draw_route, {'count': 'abc'}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_400)
+
+        self.simulate_post(self.deck_item_draw_route, {}, api_key=self.api_key)
+        self.assertEqual(self.srmock.status, falcon.HTTP_400)
 
     def test_draw_card_deck_not_exists(self):
-        self.simulate_post(self.deck_item_draw_route_not_exists, {}, api_key=self.api_key)
+        self.simulate_post(self.deck_item_draw_route_not_exists, {'count': 1}, api_key=self.api_key)
         self.assertEqual(self.srmock.status, falcon.HTTP_404)

@@ -4,7 +4,17 @@ from cerberus import Validator
 
 DECK_CREATE_SCHEMA = {
     'count': {
-        'type': 'integer'
+        'type': 'integer',
+        'required': True
+    }
+}
+
+
+DECK_DRAW_CARD_SCHEMA = {
+    'count': {
+        'type': 'integer',
+        'min': 1,
+        'required': True
     }
 }
 
@@ -28,4 +38,8 @@ class ShuffleValidationMixin(object):
 class DrawValidationMixin(object):
 
     def validate_post(self, data):
-        pass
+        v = Validator(DECK_DRAW_CARD_SCHEMA)
+        if not v.validate(data):
+            raise falcon.HTTPBadRequest(
+                title='Bad Request',
+                description=v.errors)

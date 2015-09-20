@@ -3,7 +3,10 @@ from app.deck.mixins import (
     CollectionValidationMixin,
     ShuffleValidationMixin,
     DrawValidationMixin)
-from app.deck.models import DeckOfCards, DoesNotExistError
+from app.deck.models import (
+    DeckOfCards,
+    DeckDoesNotExistError,
+    DeckHasNoCardsError)
 
 
 class DeckCollection(CollectionValidationMixin):
@@ -32,7 +35,7 @@ class DeckItem(object):
                 cursor=self.cursor,
                 api_key=api_key,
                 id=deck_id)
-        except DoesNotExistError:
+        except DeckDoesNotExistError:
             res.status = falcon.HTTP_404
         else:
             req.context['result'] = deck_of_cards.to_response_dict()
@@ -45,7 +48,7 @@ class DeckItem(object):
                 cursor=self.cursor,
                 api_key=api_key,
                 id=deck_id)
-        except DoesNotExistError:
+        except DeckDoesNotExistError:
             res.status = falcon.HTTP_404
         else:
             deck_of_cards.delete(cursor=self.cursor)
@@ -61,7 +64,7 @@ class DeckItemShuffle(ShuffleValidationMixin):
                 cursor=self.cursor,
                 api_key=api_key,
                 id=deck_id)
-        except DoesNotExistError:
+        except DeckDoesNotExistError:
             res.status = falcon.HTTP_404
         else:
             deck_of_cards.shuffle()
@@ -74,18 +77,23 @@ class DeckItemDraw(DrawValidationMixin):
 
     def on_post(self, req, res, deck_id):
         api_key = req.context['api_key']
+        count = req.context['data']['count']
         try:
             deck_of_cards = DeckOfCards.get_one_from_db(
                 cursor=self.cursor,
                 api_key=api_key,
                 id=deck_id)
-        except DoesNotExistError:
+        except DeckDoesNotExistError:
             res.status = falcon.HTTP_404
         else:
-            card = deck_of_cards.draw_card()
-            deck_of_cards.save(cursor=self.cursor)
-            req.context['result'] = {
-                'deck': deck_of_cards.to_response_dict(),
-                'card': card.to_dict()
-            }
-            res.status = falcon.HTTP_200
+            try:
+                cards_drawn = deck_of_cards.draw_card(count=count)
+            except DeckHasNoCardsError:
+                res.status = falcon.HTTP_409
+            else:
+                deck_of_cards.save(cursor=self.cursor)
+                req.context['result'] = {
+                    'deck': deck_of_cards.to_response_dict(),
+                    'cards': [card.to_dict() for card in cards_drawn]
+                }
+                res.status = falcon.HTTP_200
