@@ -4,7 +4,6 @@ Environment Variables
 There are just a couple of configurations managed as environment variables. In the development environment, these are injected by Docker Compose and managed in the `docker-compose.yml` file.
 
 * `DATABASE_URL` - This is the connection URL for the PostgreSQL database. It is not used in the **development environment**.
-* `DEBUG` - This toggles debug mode for the app to True/False.
 * `API_KEY` - A system wide API key validated in the `X-API-Key` header.
 
 
@@ -39,6 +38,8 @@ All routes require that an API Key be included in the `X-API-Key` header.
 
 ### Create a new deck
 
+Create a new deck of shuffled cards. The `count` property is a multiplier indicating the number of decks to shuffle together.
+
 **POST:**
 ```
 /deck
@@ -50,10 +51,6 @@ All routes require that an API Key be included in the `X-API-Key` header.
     "count": 1
 }
 ```
-
-**Notes:**
-
-* `count` - The number of standard 52 card decks to shuffle into the requested deck.
 
 **Response:**
 ```json
@@ -68,10 +65,13 @@ All routes require that an API Key be included in the `X-API-Key` header.
 
 * `201` if successful
 * `400` if invalid data
+* `401` if invalid API Key
 
 
 
 ### List decks
+
+List all decks that were created for the API key.
 
 **GET:**
 ```
@@ -92,10 +92,13 @@ All routes require that an API Key be included in the `X-API-Key` header.
 **Status:**
 
 * `200` if successful
+* `401` if invalid API Key
 
 
 
 ### Get deck
+
+Get a single deck that was created for the API key.
 
 **GET:**
 ```
@@ -112,27 +115,21 @@ All routes require that an API Key be included in the `X-API-Key` header.
 ```
 
 * `200` if successful
+* `401` if invalid API Key
 * `404` if deck not found
 
 
 
 ### Shuffle cards in deck
 
+Shuffle all cards in the deck. Any cards that were removed from the deck will be combined with the remaining cards.
+
 **PUT:**
 ```
 /deck/:id/shuffle
 ```
 
-**Body:**
-```json
-{
-    "target": "all"
-}
-```
-
-**Notes:**
-
-* `target` - The target set of cards to shuffle `all` or `remaining`.
+**Body:** None
 
 **Response:**
 ```json
@@ -144,11 +141,14 @@ All routes require that an API Key be included in the `X-API-Key` header.
 ```
 
 * `200` if successful
+* `401` if invalid API Key
 * `404` if deck not found
 
 
 
 ### Draw cards from deck
+
+Draw a card from the deck. The card drawn will move from remaining to removed. The `count` property indicates the number of cards to draw.
 
 **PUT:**
 ```
@@ -161,10 +161,6 @@ All routes require that an API Key be included in the `X-API-Key` header.
     "count": 1
 }
 ```
-
-**Notes:**
-
-* `count` - The number of cards to draw from the deck.
 
 **Response:**
 ```json
@@ -186,5 +182,6 @@ All routes require that an API Key be included in the `X-API-Key` header.
 ```
 
 * `200` if successful
+* `401` if invalid API Key
 * `404` if deck not found
 * `409` if deck is empty

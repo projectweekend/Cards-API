@@ -13,7 +13,5 @@ web:
     links:
         - db
     environment:
-        DEBUG: True
-        SECRET_KEY: secretkey
         CARD_IMAGE_PATH: http://images.example.com
         API_KEY: totallynotreal
